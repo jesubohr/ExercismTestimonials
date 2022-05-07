@@ -1,10 +1,11 @@
 import { Header } from "./components/header";
+import { Title } from "./components/title";
 
 function App() {
     return (
     <>
         <Header />
-        <h1>Saluton Mondo</h1>
+        <Title />
     </>
     );
 }
