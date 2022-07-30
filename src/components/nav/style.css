@@ -1,3 +1,0 @@
-ul#nav-one > li:hover:not(:first-child) > svg {
-    stroke: #130B43;
-}
