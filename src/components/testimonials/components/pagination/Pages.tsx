@@ -1,60 +1,95 @@
-import { PageItem } from "./PageItem";
+import { PageItem } from "./PageItem"
 
 type PagesProps = {
   currentPage: number,
   totalPages: number,
+  changePage: (page: number) => void,
 }
 
-const MAX_PAGE_ITEMS = 6;
-export function Pages({ currentPage, totalPages }: PagesProps) {
+const MAX_PAGE_ITEMS = 6
+const MAX_PART_PAGE_ITEMS = Math.floor(MAX_PAGE_ITEMS / 2)
+export function Pages({ currentPage, totalPages, changePage }: PagesProps) {
   return (
     <ul className="flex items-center gap-3">
       {
         (totalPages > MAX_PAGE_ITEMS)
-          ? <LargePages currentPage={currentPage} totalPages={totalPages} />
-          : <ShortPages currentPage={currentPage} totalPages={totalPages} />
+          ? <LargePages changePage={changePage} currentPage={currentPage} totalPages={totalPages} />
+          : <ShortPages changePage={changePage} currentPage={currentPage} totalPages={totalPages} />
       }
     </ul>
   );
 }
 
-function LargePages({ currentPage, totalPages }: PagesProps) {
+function LargePages({ currentPage, totalPages, changePage }: PagesProps) {
+  const firstFinalPage = totalPages - (MAX_PART_PAGE_ITEMS * 2) + 1
+  const firstHalf = {
+    currentPage,
+    start: (currentPage <= firstFinalPage) ? currentPage : firstFinalPage
+  }
+  const secondHalf = {
+    currentPage,
+    start: totalPages - MAX_PART_PAGE_ITEMS + 1,
+  }
+
   return (
     <>
       {
-        generatePageItems(currentPage, 1, (MAX_PAGE_ITEMS / 2)).map((pageItem, index) => (
-          <PageItem key={index} {...pageItem} />
-        ))
+        generatePageItems(firstHalf)
+          .map((pageItem, index) => (
+            <PageItem
+              key={index}
+              onClick={() => changePage(pageItem.number)}
+              {...pageItem}
+            />
+          ))
       }
       <li className="py-2 px-4 text-sm text-label-secondary font-medium">...</li>
       {
-        generatePageItems(currentPage, totalPages - (MAX_PAGE_ITEMS / 2) + 1, totalPages).map((pageItem, index) => (
-          <PageItem key={index} {...pageItem} />
-        ))
+        generatePageItems(secondHalf)
+          .map((pageItem, index) => (
+            <PageItem
+              key={index}
+              onClick={() => changePage(pageItem.number)}
+              {...pageItem}
+            />
+          ))
       }
     </>
   )
 }
 
-function ShortPages({ currentPage, totalPages }: PagesProps) {
+function ShortPages({ currentPage, totalPages, changePage }: PagesProps) {
+  const complete = {
+    currentPage,
+    start: 1,
+    end: totalPages
+  }
+
   return (
     <>
       {
-        generatePageItems(currentPage, 1, totalPages).map((pageItem, index) => (
-          <PageItem key={index} {...pageItem} />
+        generatePageItems(complete).map((pageItem, index) => (
+          <PageItem
+            key={index}
+            onClick={() => changePage(pageItem.number)}
+            {...pageItem}
+          />
         ))
       }
     </>
   )
 }
 
-const generatePageItems = (currentPage: number, start: number, end: number) => {
+type PageItemProps = {
+  currentPage: number
+  start: number
+}
+const generatePageItems = ({ currentPage, start }: PageItemProps) => {
   const pageItems = Array
-    .from({ length: end - start + 1 }, (_, i) => start + i)
+    .from({ length: MAX_PART_PAGE_ITEMS }, (_, i) => start + i)
     .map((page) => ({
       number: page,
-      active: page === currentPage,
-      onClick: () => { }
+      active: page === currentPage
     }));
   return pageItems;
 };
